@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>AI Demand Forecasts</h1>
+<div class="card">
+    <table>
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Current Inventory</th>
+                <th>Predicted Demand</th>
+                <th>Stockout Risk</th>
+                <th>Reorder Suggested</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in products %}
+            <tr>
+                <td><strong>{{ item.Product }}</strong></td>
+                <td>{{ item.Inventory }}</td>
+                <td>{{ item.Predicted_Weekly_Demand | round(1) }}</td>
+                <td class="{{ 'danger' if item.Stockout_Risk < 0 else '' }}">
+                    {{ item.Stockout_Risk | round(1) }}
+                </td>
+                <td class="{{ 'success' if item.Reorder_Suggested > 0 else '' }}">
+                    {{ item.Reorder_Suggested | round(0) }}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

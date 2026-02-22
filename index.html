@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="hero">
+    <h1>Inventory Command Center</h1>
+    <p>AI-driven supply chain suggestions to keep your shelves full.</p>
+</div>
+
+<div class="card" style="margin-bottom: 20px;">
+    <h2>Update Safety Stock</h2>
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 2rem;">
+        <form action="/update_safety_stock" method="POST" style="display: flex; gap: 10px; align-items: center; flex: 1;">
+            <label for="safety_stock">Global Safety Stock Level:</label>
+            <input type="number" id="safety_stock" name="safety_stock" value="{{ current_safety_stock or 50 }}" required style="padding: 8px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); width: 80px;">
+            <button type="submit" class="btn-apple">Update</button>
+        </form>
+        <div style="flex: 1; text-align: right;">
+            <a href="/download_report" class="btn-apple" style="background: var(--apple-text);">Download Excel Report</a>
+            <p style="margin-top: 0.5rem; font-size: 0.85rem; color: var(--apple-gray);">Generate latest AI inventory analysis.</p>
+        </div>
+    </div>
+</div>
+
+<div class="recent-highlights" style="margin-bottom: 20px;">
+    <h2>AI Strategic Advice</h2>
+    <div class="highlights-grid">
+        {% for item in reorder_alerts[:3] %}
+        <div class="insight-box">
+            <h4>{{ item.Product }}</h4>
+            <p>{{ item.AI_Insight }}</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="dashboard-grid">
+    <div class="card alert-card">
+        <h2><span class="icon">⚠️</span> Critical Actions Required</h2>
+        {% if reorder_alerts %}
+            <ul class="action-list">
+                {% for item in reorder_alerts %}
+                <li>
+                    <strong>Order {{ item.Reorder_Suggested | round(0) }} units</strong> of {{ item.Product }}.
+                    <br><small>Stockout Risk: {{ item.Stockout_Risk | round(1) }} | Safety Stock: {{ item.Safety_Stock }}</small>
+                </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="success">All stock levels are optimal. No immediate reorders needed.</p>
+        {% endif %}
+    </div>
+
+    <div class="card stockout-card">
+        <h2><span class="icon">🚨</span> High Stockout Risk</h2>
+        {% if stockout_alerts %}
+            <ul class="action-list">
+                {% for item in stockout_alerts %}
+                <li class="danger">
+                    <strong>{{ item.Product }}</strong> is predicted to run out this week!
+                    <br><small>Inventory: {{ item.Inventory }} | Predicted Demand: {{ item.Predicted_Weekly_Demand | round(1) }}</small>
+                </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="success">No products are currently at high risk of immediate stockout.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
